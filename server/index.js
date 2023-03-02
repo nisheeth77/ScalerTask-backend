@@ -11,6 +11,8 @@ const db = mysql.createConnection({
 
 });
 
+app.use(express.json());
+app.use(cor());
 app.get('/',(req,res) =>
 {   
    
@@ -29,14 +31,55 @@ app.get("/interview", (req,res)=>
 })
 
 app.post("/interview", (req,res)=>{
-    const query = "INSERT INTO interviewdetails(`name`,`email`,`st`,`et`) VALUES (?)"
-    const values= ["req.body.name",
-    "req.body.email",
-    "req.body.st",
-    "req.body.et"]
+    const query = "INSERT INTO interviewdetails(`name`,`email`,`date`,`st`,`et`) VALUES (?)";
+    const values= [req.body.name,
+     req.body.email,
+    req.body.date,
+    req.body.st,
+    req.body.et];
     db.query(query,[values], (err,data)=>{
-        if(err) return res.json(err)
-        return res.json("bewjbhcwe")
+        if(err) return res.json(err);
+        return res.json(data);
+    });
+}) ;
+app.delete("/interview/:id", (req,res) =>
+{
+    const interviewee_id = req.params.id;
+    const query = "DELETE FROM interviewdetails WHERE id = ?";
+
+    db.query(query, [interviewee_id], (err,data)=>
+    {
+        if(err) return res.json(err);
+        return res.json(data);
     })
-})  
+});
+
+app.put("/interview/:id", (req,res) =>
+{
+    const interviewee_id = req.params.id;
+    const query = "UPDATE interviewdetails SET `name` = ?, `email` = ?, `date` = ?, `st` = ?, `et` = ? WHERE id = ? ";
+    const values= [req.body.name,
+        req.body.email,
+       req.body.date,
+       req.body.st,
+       req.body.et];
+    db.query(query, [...values,interviewee_id], (err,data)=>
+    {
+        if(err) return res.json(err);
+        return res.json(data);
+    })
+});
+
+app.get("/interview/:id", (req,res) =>
+{
+    const interviewee_id = req.params.id;
+    const query = "SELECT * FROM interviewdetails WHERE id = ?";
+    db.query(query,[ interviewee_id], (err,data)=>
+    {
+         if(err) return res.json(err);
+        return res.json(data);
+    })
+})
+
+
 app.listen(3000);
